@@ -10,9 +10,11 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{ts,tsx,mjs,json,md}\"",
     "icons": "node scripts/generate-icons.mjs",
     "content:fetch": "tsx content-pipeline/fetch-candidates.ts",
-    "content:preview": "tsx content-pipeline/render-preview.ts"
+    "content:preview": "tsx content-pipeline/render-preview.ts",
+    "content:write": "tsx content-pipeline/write-content.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.93.0",
     "@serwist/next": "^9.5.11",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
@@ -24,7 +26,8 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "serwist": "^9.5.11",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

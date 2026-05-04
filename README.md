@@ -36,6 +36,7 @@ pnpm format            # Prettier
 
 pnpm content:fetch     # собрать кандидатов POI для зоны (по умолчанию: chistye-prudy)
 pnpm content:preview   # сгенерировать markdown превью с фото
+pnpm content:write     # написать живые тексты через Claude (нужен ANTHROPIC_API_KEY)
 ```
 
 ## Структура
@@ -85,7 +86,7 @@ scripts/
 - [x] **Phase 1.1** — Supabase: схема БД (PostGIS), клиенты, типы, RPC
 - [x] **Phase 1.2** — auth UI (magic link, callback, user menu, sign-out)
 - [x] **Phase 2.1** — content-pipeline: сборщик кандидатов POI (Overpass + Wikidata + Commons), markdown-превью
-- [ ] **Phase 2.2** — генерация живых текстов через sub-агентов Claude (по запросу)
+- [x] **Phase 2.2** — генерация живых текстов через Claude API (Opus 4.7, structured outputs, prompt caching)
 - [ ] **Phase 2.3** — импорт enriched JSON в Supabase
 - [ ] **Phase 3** — POI на карте, карточка POI с фото и текстом
 - [ ] **Phase 4** — готовые маршруты, фильтры по темам
@@ -100,7 +101,7 @@ scripts/
 
 1. **Stage 1 (fetch)** — `pnpm content:fetch` собирает кандидатов через Overpass + Wikidata + Commons.
 2. **Stage 2 (preview)** — `pnpm content:preview` рендерит markdown с фото для проверки на телефоне.
-3. **Stage 3 (write)** — sub-агенты Claude пишут живые тексты по жёсткому шаблону на основе Wikipedia + Wikidata.
+3. **Stage 3 (write)** — `pnpm content:write` пишет живые тексты через Claude (Opus 4.7) по жёсткому шаблону на основе Wikipedia + Wikidata.
 4. **Stage 4 (import)** — публикация в Supabase через `/admin` или скриптом.
 
 Подробности — в [`content-pipeline/README.md`](./content-pipeline/README.md).
