@@ -11,7 +11,8 @@
     "icons": "node scripts/generate-icons.mjs",
     "content:fetch": "tsx content-pipeline/fetch-candidates.ts",
     "content:preview": "tsx content-pipeline/render-preview.ts",
-    "content:write": "tsx content-pipeline/write-content.ts"
+    "content:write": "tsx --env-file-if-exists=.env.local content-pipeline/write-content.ts",
+    "content:import": "tsx --env-file-if-exists=.env.local content-pipeline/import.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.93.0",

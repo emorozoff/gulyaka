@@ -8,10 +8,10 @@
 [1] fetch       OSM + Wikidata + Commons  →  content/candidates/<zone>.json
 [2] preview     candidates.json           →  content/candidates/<zone>.md
 [3] write       Claude (Opus 4.7)          →  content/candidates/<zone>.enriched.json
-[4] import      enriched.json             →  Supabase (через Stage 4 скрипт)
+[4] import      enriched.json             →  Supabase (RPC upsert_poi)
 ```
 
-Реализованы **Stage 1, 2 и 3**. Stage 4 — следующая итерация.
+Все 4 этапа реализованы.
 
 ## Зоны
 
@@ -34,18 +34,27 @@ pnpm content:fetch
 pnpm content:preview
 
 # 3. Написание живых текстов через Claude
-ANTHROPIC_API_KEY=sk-ant-... pnpm content:write
-# или с настройкой параллелизма (по умолчанию 3)
+#    (читает ANTHROPIC_API_KEY из .env.local через --env-file-if-exists)
+pnpm content:write
 pnpm content:write -- chistye-prudy --concurrency 4
+
+# 4. Импорт в Supabase (черновик по умолчанию)
+#    (читает SUPABASE_SERVICE_ROLE_KEY из .env.local)
+pnpm content:import
+pnpm content:import -- --publish               # сразу публиковать
+pnpm content:import -- --overwrite             # заменять существующие
+pnpm content:import -- --slug menshikova-bashnya  # один POI
 
 # Для другой зоны
 pnpm content:fetch some-other-zone
 pnpm content:preview some-other-zone
 pnpm content:write some-other-zone
+pnpm content:import some-other-zone
 ```
 
 `content:fetch` занимает 10-30 секунд (Overpass + Wikidata; есть фолбэк на 3 зеркала Overpass).
 `content:write` — несколько минут на 30-50 кандидатов. Сохраняет прогресс после каждого POI: можно прервать `Ctrl+C` и продолжить — повторный запуск пропускает уже написанные slug'и.
+`content:import` — секунды; по умолчанию вставляет только новые (existing rows skip), `--overwrite` заменяет всё.
 
 ## Что попадает в кандидаты
 
@@ -121,6 +130,38 @@ pnpm content:write some-other-zone
 ### Resume
 
 `<zone>.enriched.json` сохраняется после каждого успешного POI. Если прервать (Ctrl+C, лимит API, что угодно) — следующий запуск пропустит написанные. Чтобы переписать конкретный POI — удалить его из `candidates[]` в enriched.json. Чтобы перезапустить упавший — удалить из `failed[]`.
+
+## Stage 4 — импорт в Supabase
+
+`pnpm content:import` берёт `<zone>.enriched.json` и для каждого POI вызывает RPC `upsert_poi` (определён в `supabase/migrations/0002_upsert_poi.sql`). Для подключения к БД нужен **service_role** ключ — он обходит RLS, поэтому `.env.local` с этим ключом **не коммитится**.
+
+### Поведение
+
+- **По умолчанию**: `INSERT ... ON CONFLICT (slug) DO NOTHING`. Если POI с таким slug уже есть — пропускает. Безопасно для повторных запусков, ручные правки в Supabase сохраняются.
+- **`--overwrite`**: полный upsert, перезаписывает все поля. Использовать когда осознанно хочется снести правки.
+- **`--publish`**: ставит `status = 'published'` сразу. Без флага — `draft` (POI не виден в публичных RPC `pois_in_bbox`/`pois_nearby`).
+- **`--slug X`**: импорт только одного POI — удобно для проверки или re-import одной записи.
+
+### Поля
+
+| candidate.* → POI колонка | |
+|---|---|
+| `slug` | `slug` (уникальный ключ) |
+| `name_ru` | `name` |
+| `lng, lat` | `geom` (PostGIS Point, SRID 4326) |
+| `type` | `type` (enum-like text constraint) |
+| `address`, `built_year`, `architect` | те же |
+| `content.short_blurb` | `short_blurb` |
+| `content.long_text` | `long_text` |
+| `content.fact_cards` | `fact_cards` (jsonb) |
+| `image.url` | `cover_image_url` |
+| `image.filename` | `cover_image_credit` (заглушка `Wikimedia Commons: ...`) |
+| `sources.*` + content meta | `sources` (jsonb с wikidata_id, wikipedia_url, osm_id, content_confidence, notes_for_editor) |
+
+### Что не делается автоматически
+
+- **Лицензии и attribution фотографий**: записываем имя файла Commons; редактор должен вычитать licence (CC-BY-SA, public domain etc) перед публикацией. План — отдельная итерация по обогащению через Commons API.
+- **Загрузка фото в Supabase Storage**: пока используем прямые URL Commons (CDN надёжный, бесплатный). Если захотим self-host — отдельный скрипт.
 
 ## Лимиты и вежливость
 

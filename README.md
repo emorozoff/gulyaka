@@ -37,6 +37,7 @@ pnpm format            # Prettier
 pnpm content:fetch     # собрать кандидатов POI для зоны (по умолчанию: chistye-prudy)
 pnpm content:preview   # сгенерировать markdown превью с фото
 pnpm content:write     # написать живые тексты через Claude (нужен ANTHROPIC_API_KEY)
+pnpm content:import    # загрузить enriched.json в Supabase (нужен SUPABASE_SERVICE_ROLE_KEY)
 ```
 
 ## Структура
@@ -87,7 +88,7 @@ scripts/
 - [x] **Phase 1.2** — auth UI (magic link, callback, user menu, sign-out)
 - [x] **Phase 2.1** — content-pipeline: сборщик кандидатов POI (Overpass + Wikidata + Commons), markdown-превью
 - [x] **Phase 2.2** — генерация живых текстов через Claude API (Opus 4.7, structured outputs, prompt caching)
-- [ ] **Phase 2.3** — импорт enriched JSON в Supabase
+- [x] **Phase 2.3** — импорт enriched JSON в Supabase через RPC `upsert_poi`
 - [ ] **Phase 3** — POI на карте, карточка POI с фото и текстом
 - [ ] **Phase 4** — готовые маршруты, фильтры по темам
 - [ ] **Phase 5** — геолокация, «Я здесь», push при подходе к POI

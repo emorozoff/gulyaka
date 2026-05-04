@@ -16,6 +16,7 @@ Workflow выбран простой: SQL-файлы вручную через �
 ## Применённые миграции
 
 - [x] `0001_init.sql` — расширение PostGIS, таблицы `pois`/`routes`/M2M/пользовательские, RLS, RPC `pois_in_bbox` и `pois_nearby`
+- [ ] `0002_upsert_poi.sql` — RPC `upsert_poi` для импорта POI из content-pipeline (вызывается с service_role ключом из `pnpm content:import`)
 
 ## Storage buckets
 
@@ -48,3 +49,4 @@ Workflow выбран простой: SQL-файлы вручную через �
 |---|---|
 | `pois_in_bbox(west, south, east, north)` | POI в видимой области карты — основной запрос для маркеров |
 | `pois_nearby(in_lng, in_lat, radius_m)` | ближайшие POI с дистанцией — для геолокационных оповещений |
+| `upsert_poi(...)` | импорт POI с сервера: lng/lat → PostGIS Point, ON CONFLICT DO NOTHING (или OVERWRITE). Доступна только service_role |
