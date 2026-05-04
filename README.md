@@ -10,7 +10,7 @@ PWA для прогулок по Москве: маршруты, клик по �
 - **Tailwind CSS v4** (CSS-first config через `@theme`)
 - **MapLibre GL** + **OpenFreeMap** (бесплатные векторные карты)
 - **Serwist** для PWA / service worker
-- **Supabase** для БД, авторизации и хранилища (подключим в Phase 1)
+- **Supabase** (Postgres + PostGIS + Auth + Storage)
 
 ## Запуск
 
@@ -23,64 +23,84 @@ pnpm dev
 Открыть http://localhost:3000
 
 Для применения схемы БД — см. [`supabase/README.md`](./supabase/README.md).
+Для сбора POI-кандидатов — см. [`content-pipeline/README.md`](./content-pipeline/README.md).
 
 ## Команды
 
 ```bash
-pnpm dev      # dev-сервер
-pnpm build    # production-сборка (генерирует service worker)
-pnpm start    # запуск production-сборки
-pnpm lint     # ESLint
+pnpm dev               # dev-сервер
+pnpm build             # production-сборка (генерирует service worker)
+pnpm start             # production-сборка → запуск
+pnpm lint              # ESLint
+pnpm format            # Prettier
+
+pnpm content:fetch     # собрать кандидатов POI для зоны (по умолчанию: chistye-prudy)
+pnpm content:preview   # сгенерировать markdown превью с фото
 ```
 
 ## Структура
 
 ```
 src/
-  app/             # Next.js App Router
-    layout.tsx     # корневой layout, шрифты, метаданные, PWA
-    page.tsx       # главный экран с картой
-    sw.ts          # service worker (Serwist)
-    globals.css    # Tailwind + brand palette
-  proxy.ts         # session refresh для Supabase auth (Next 16: бывший middleware)
+  app/                 # Next.js App Router
+    layout.tsx         # шрифты, метаданные, PWA
+    page.tsx           # главный экран с картой и user menu
+    login/             # страница входа (magic link)
+    auth/
+      callback/        # обмен code → session
+      sign-out/        # action выхода
+    sw.ts              # service worker (Serwist)
+    globals.css        # Tailwind + brand palette
+  proxy.ts             # рефреш сессии Supabase (Next 16: бывший middleware)
   components/
-    map/           # MapLibre обёртка
+    map/               # MapLibre обёртка
+    auth/              # user menu
+    ui/                # button/input/label
     sw-register.tsx
   lib/
-    constants.ts   # координаты пилотной зоны, URL стиля карты
-    utils.ts       # cn helper
+    constants.ts       # координаты пилотной зоны, URL стиля карты
+    utils.ts           # cn helper
     supabase/
-      client.ts    # клиент для Client Components
-      server.ts    # клиент для Server Components / Actions / Route Handlers
-      types.ts     # хэнд-врайтн Database типы
+      client.ts        # клиент для Client Components
+      server.ts        # клиент для Server Components / Actions
+      types.ts         # хэнд-врайтн Database типы
+content-pipeline/      # сбор POI из Overpass + Wikidata + Commons
+  fetch-candidates.ts  # Stage 1: загрузка и фильтрация
+  render-preview.ts    # Stage 2: markdown с фото для review
+  lib/                 # API-обёртки и утилиты
+content/
+  candidates/          # output: <zone>.json и <zone>.md
 public/
-  manifest.webmanifest
-  icon.svg, icon-192.png, icon-512.png, apple-touch-icon.png
+  manifest.webmanifest, icon*.png, icon.svg
 supabase/
-  migrations/      # SQL-миграции (применять вручную в дашборде)
-  README.md        # инструкции по применению
+  migrations/          # SQL-миграции (применять вручную в дашборде)
+  README.md            # инструкции по применению
 scripts/
-  generate-icons.mjs  # сборка PNG-иконок из SVG
+  generate-icons.mjs
 ```
 
 ## Дорожная карта
 
 - [x] **Phase 0** — каркас, карта, PWA-манифест
-- [x] **Phase 1.1** — Supabase: схема БД (PostGIS), клиенты, типы, RPC. **Auth-экран в Phase 1.2**
-- [ ] **Phase 1.2** — auth UI (magic link), интеграция с middleware/proxy
-- [ ] **Phase 2** — сбор кандидатов POI (Overpass + Wikidata) для пилотной зоны
-- [ ] **Phase 3** — POI с историями на карте, карточка POI, фото
+- [x] **Phase 1.1** — Supabase: схема БД (PostGIS), клиенты, типы, RPC
+- [x] **Phase 1.2** — auth UI (magic link, callback, user menu, sign-out)
+- [x] **Phase 2.1** — content-pipeline: сборщик кандидатов POI (Overpass + Wikidata + Commons), markdown-превью
+- [ ] **Phase 2.2** — генерация живых текстов через sub-агентов Claude (по запросу)
+- [ ] **Phase 2.3** — импорт enriched JSON в Supabase
+- [ ] **Phase 3** — POI на карте, карточка POI с фото и текстом
 - [ ] **Phase 4** — готовые маршруты, фильтры по темам
 - [ ] **Phase 5** — геолокация, «Я здесь», push при подходе к POI
-- [ ] **Phase 6** — аккаунты, избранное, история, гейминфикация
+- [ ] **Phase 6** — избранное, история, гейминфикация
 - [ ] **Phase 7** — полировка, A11y, расширение зон покрытия
 - [ ] **v2** — аудиогид (отложено)
 
-## Контент-пайплайн (план)
+## Контент-пайплайн (общая идея)
 
 Каждый POI = здание/мост/памятник + краткий и развёрнутый текст + 2–3 факт-карточки + **фото обязательно** (без фото POI не публикуется).
 
-1. Скрипт собирает кандидатов через **Overpass API** (OSM) + **Wikidata SPARQL** в bbox пилотной зоны.
-2. Тексты пишутся через под-агентов Claude по фиксированному шаблону на основе Wikipedia + Wikidata.
-3. Фотографии — из Wikimedia Commons (или ручной загрузкой в Supabase Storage).
-4. Редактура и публикация — через `/admin`.
+1. **Stage 1 (fetch)** — `pnpm content:fetch` собирает кандидатов через Overpass + Wikidata + Commons.
+2. **Stage 2 (preview)** — `pnpm content:preview` рендерит markdown с фото для проверки на телефоне.
+3. **Stage 3 (write)** — sub-агенты Claude пишут живые тексты по жёсткому шаблону на основе Wikipedia + Wikidata.
+4. **Stage 4 (import)** — публикация в Supabase через `/admin` или скриптом.
+
+Подробности — в [`content-pipeline/README.md`](./content-pipeline/README.md).

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{ts,tsx,mjs,json,md}\"",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "content:fetch": "tsx content-pipeline/fetch-candidates.ts",
+    "content:preview": "tsx content-pipeline/render-preview.ts"
   },
   "dependencies": {
     "@serwist/next": "^9.5.11",
@@ -34,6 +36,7 @@
     "prettier": "^3.8.3",
     "sharp": "^0.34.5",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

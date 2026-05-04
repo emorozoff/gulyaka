@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { Map } from "@/components/map/map";
+import { UserMenu } from "@/components/auth/user-menu";
 import { APP_NAME } from "@/lib/constants";
 
 export default function Home() {
@@ -6,7 +8,7 @@ export default function Home() {
     <main className="relative flex-1 w-full">
       <Map className="absolute inset-0" />
 
-      <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between p-4 pt-[max(env(safe-area-inset-top),1rem)]">
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4 pt-[max(env(safe-area-inset-top),1rem)]">
         <div className="pointer-events-auto rounded-2xl bg-bg/85 px-4 py-2 shadow-sm ring-1 ring-border backdrop-blur">
           <span className="font-serif text-lg leading-none tracking-tight">
             {APP_NAME}
@@ -15,6 +17,10 @@ export default function Home() {
             Чистые пруды · пилот
           </span>
         </div>
+
+        <Suspense fallback={null}>
+          <UserMenu />
+        </Suspense>
       </header>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 pb-[max(env(safe-area-inset-bottom),1rem)]">
