@@ -1,12 +1,12 @@
 import { Suspense } from "react";
-import { Map } from "@/components/map/map";
+import { MapShell } from "@/components/map-shell";
 import { UserMenu } from "@/components/auth/user-menu";
 import { APP_NAME } from "@/lib/constants";
 
 export default function Home() {
   return (
     <main className="relative flex-1 w-full">
-      <Map className="absolute inset-0" />
+      <MapShell />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4 pt-[max(env(safe-area-inset-top),1rem)]">
         <div className="pointer-events-auto rounded-2xl bg-bg/85 px-4 py-2 shadow-sm ring-1 ring-border backdrop-blur">
