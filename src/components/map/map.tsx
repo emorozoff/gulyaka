@@ -8,8 +8,7 @@ import maplibregl, {
   type ExpressionSpecification,
 } from "maplibre-gl";
 import { MAP_STYLE_URL, PILOT_CENTER } from "@/lib/constants";
-import type { MockPOI } from "@/lib/mock-pois";
-import type { POIType } from "@/lib/supabase/types";
+import type { POI, POIType } from "@/lib/types";
 
 type PoiFeatureCollection = {
   type: "FeatureCollection";
@@ -54,7 +53,7 @@ const COLOR_EXPRESSION: ExpressionSpecification = [
 
 type Props = {
   className?: string;
-  pois: MockPOI[];
+  pois: POI[];
   selectedSlug: string | null;
   onSelect: (slug: string | null) => void;
 };
@@ -214,7 +213,7 @@ export function Map({ className, pois, selectedSlug, onSelect }: Props) {
   return <div ref={containerRef} className={className} />;
 }
 
-function poisToGeoJSON(pois: MockPOI[]): PoiFeatureCollection {
+function poisToGeoJSON(pois: POI[]): PoiFeatureCollection {
   return {
     type: "FeatureCollection",
     features: pois.map((p) => ({

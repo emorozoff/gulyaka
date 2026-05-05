@@ -1,21 +1,4 @@
-/**
- * MOCK POI fixture — used during UI development before the real content
- * pipeline runs. Replace with Supabase-backed data once `pnpm content:fetch`
- * + content writing produce real POIs.
- *
- * Coordinates are approximate (~10m precision). Photographs use inline SVG
- * placeholders so the UI works offline and in the sandbox.
- *
- * Texts are short demo content — accurate to the best of training-time
- * knowledge but NOT a substitute for the real Stage 3 sub-agent output.
- */
-
-import type { POIType, POIRow } from "@/lib/supabase/types";
-
-export type MockPOI = Omit<POIRow, "geom" | "created_at" | "updated_at"> & {
-  lng: number;
-  lat: number;
-};
+import type { POI, POIType } from "@/lib/types";
 
 const PALETTE: Record<POIType, [string, string]> = {
   monument: ["#7a4324", "#c98a64"],
@@ -45,14 +28,13 @@ function placeholderImage(label: string, type: POIType): string {
     <rect width='800' height='600' fill='url(#g)'/>
     <rect width='800' height='600' fill='url(#p)'/>
     <text x='40' y='540' font-family='Georgia, serif' font-size='34' fill='rgba(255,255,255,0.92)' font-style='italic'>${safeLabel}</text>
-    <text x='40' y='576' font-family='system-ui, sans-serif' font-size='14' fill='rgba(255,255,255,0.6)' letter-spacing='3'>MOCK</text>
+    <text x='40' y='576' font-family='system-ui, sans-serif' font-size='14' fill='rgba(255,255,255,0.6)' letter-spacing='3'>DEMO</text>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-export const MOCK_POIS: MockPOI[] = [
+export const POIS: POI[] = [
   {
-    id: "mock-menshikov-tower",
     slug: "menshikova-bashnya",
     name: "Меньшикова башня",
     address: "Архангельский переулок, 15А",
@@ -75,15 +57,13 @@ export const MOCK_POIS: MockPOI[] = [
       { title: "Высота", body: "84,3 м — рекорд Москвы 1707-1731" },
     ],
     cover_image_url: placeholderImage("Меньшикова башня", "church"),
-    cover_image_credit: "MOCK · placeholder",
+    cover_image_credit: null,
     sources: {
       wikipedia_url: "https://ru.wikipedia.org/wiki/Меншикова_башня",
       wikidata_id: "Q1330554",
     },
-    status: "published",
   },
   {
-    id: "mock-sovremennik",
     slug: "teatr-sovremennik",
     name: "Театр «Современник»",
     address: "Чистопрудный бульвар, 19А",
@@ -104,15 +84,13 @@ export const MOCK_POIS: MockPOI[] = [
       { title: "Бывшее имя", body: "Кинотеатр «Колизей»" },
     ],
     cover_image_url: placeholderImage("Театр «Современник»", "building"),
-    cover_image_credit: "MOCK · placeholder",
+    cover_image_credit: null,
     sources: {
       wikipedia_url: "https://ru.wikipedia.org/wiki/Современник_(театр)",
       wikidata_id: "Q1426881",
     },
-    status: "published",
   },
   {
-    id: "mock-perlov",
     slug: "chajnyj-dom-perlova",
     name: "Чайный дом Перлова",
     address: "Мясницкая, 19",
@@ -135,15 +113,13 @@ export const MOCK_POIS: MockPOI[] = [
       { title: "Стиль", body: "Эклектика с китайскими мотивами" },
     ],
     cover_image_url: placeholderImage("Чайный дом Перлова", "mansion"),
-    cover_image_credit: "MOCK · placeholder",
+    cover_image_credit: null,
     sources: {
       wikipedia_url: "https://ru.wikipedia.org/wiki/Чайный_дом_на_Мясницкой",
       wikidata_id: "Q4508165",
     },
-    status: "published",
   },
   {
-    id: "mock-house-with-beasts",
     slug: "dom-so-zveryami",
     name: "Дом со зверями",
     address: "Чистопрудный бульвар, 14",
@@ -164,16 +140,14 @@ export const MOCK_POIS: MockPOI[] = [
       { title: "Стиль", body: "Неорусский, мотивы 12 века" },
     ],
     cover_image_url: placeholderImage("Дом со зверями", "building"),
-    cover_image_credit: "MOCK · placeholder",
+    cover_image_credit: null,
     sources: {
       wikipedia_url:
         "https://ru.wikipedia.org/wiki/Доходный_дом_церкви_Троицы_на_Грязях",
       wikidata_id: "Q4174303",
     },
-    status: "published",
   },
   {
-    id: "mock-dom-komod",
     slug: "dom-komod",
     name: "Дом-комод",
     address: "Покровка, 22",
@@ -194,16 +168,14 @@ export const MOCK_POIS: MockPOI[] = [
       { title: "Литература", body: "Дом Ростовых в «Войне и мире»" },
     ],
     cover_image_url: placeholderImage("Дом-комод", "mansion"),
-    cover_image_credit: "MOCK · placeholder",
+    cover_image_credit: null,
     sources: {
       wikipedia_url:
         "https://ru.wikipedia.org/wiki/Усадьба_Апраксиных_—_Трубецких",
       wikidata_id: "Q4477625",
     },
-    status: "published",
   },
   {
-    id: "mock-griboyedov",
     slug: "pamyatnik-griboyedovu",
     name: "Памятник Грибоедову",
     address: "Чистопрудный бульвар, у Мясницких ворот",
@@ -224,16 +196,15 @@ export const MOCK_POIS: MockPOI[] = [
       { title: "Высота", body: "≈5 м с постаментом" },
     ],
     cover_image_url: placeholderImage("Памятник Грибоедову", "monument"),
-    cover_image_credit: "MOCK · placeholder",
+    cover_image_credit: null,
     sources: {
       wikipedia_url:
         "https://ru.wikipedia.org/wiki/Памятник_Грибоедову_(Москва)",
       wikidata_id: "Q4344108",
     },
-    status: "published",
   },
 ];
 
-export function findMockPOI(slug: string): MockPOI | undefined {
-  return MOCK_POIS.find((p) => p.slug === slug);
+export function findPOI(slug: string): POI | undefined {
+  return POIS.find((p) => p.slug === slug);
 }

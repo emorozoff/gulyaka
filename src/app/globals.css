@@ -38,6 +38,7 @@
 html,
 body {
   height: 100%;
+  margin: 0;
 }
 
 body {
@@ -50,7 +51,6 @@ body {
   overscroll-behavior: none;
 }
 
-/* Hide MapLibre default controls we don't want */
 .maplibregl-ctrl-attrib-button {
   display: none;
 }

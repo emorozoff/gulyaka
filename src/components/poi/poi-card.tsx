@@ -2,8 +2,7 @@
 
 import { useEffect } from "react";
 import { ExternalLink, X } from "lucide-react";
-import type { MockPOI } from "@/lib/mock-pois";
-import type { POIType } from "@/lib/supabase/types";
+import type { POI, POIType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const TYPE_LABEL: Record<POIType, string> = {
@@ -19,7 +18,7 @@ const TYPE_LABEL: Record<POIType, string> = {
 };
 
 type Props = {
-  poi: MockPOI | null;
+  poi: POI | null;
   onClose: () => void;
 };
 
@@ -71,7 +70,7 @@ export function PoiCard({ poi, onClose }: Props) {
   );
 }
 
-function PoiContent({ poi, onClose }: { poi: MockPOI; onClose: () => void }) {
+function PoiContent({ poi, onClose }: { poi: POI; onClose: () => void }) {
   return (
     <article className="flex flex-col gap-5 px-5 pb-6">
       <div className="relative -mx-5 aspect-[4/3] overflow-hidden">
@@ -138,7 +137,7 @@ function PoiContent({ poi, onClose }: { poi: MockPOI; onClose: () => void }) {
   );
 }
 
-function Sources({ poi }: { poi: MockPOI }) {
+function Sources({ poi }: { poi: POI }) {
   const links: { label: string; url: string }[] = [];
   if (poi.sources.wikipedia_url) {
     links.push({ label: "Wikipedia", url: poi.sources.wikipedia_url });
