@@ -13,12 +13,10 @@ export const chistyePrudyRoute: Route = {
   durationMinutes: 60,
   startHint: 'От метро «Чистые пруды», у памятника Грибоедову',
   cover: {
-    url: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Chistye_Prudy_(%D0%A7%D0%B8%D1%81%D1%82%D1%8B%D0%B5_%D0%9F%D1%80%D1%83%D0%B4%D1%8B)_(4322669389).jpg',
-    caption: 'Чистопрудный бульвар',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/3/38/Menshikov_tower_(2).jpg',
+    caption: 'Меньшикова башня',
     attribution: 'Wikimedia Commons',
-    attributionUrl: COMMONS_PAGE(
-      'Chistye_Prudy_(Чистые_Пруды)_(4322669389).jpg',
-    ),
+    attributionUrl: COMMONS_PAGE('Menshikov_tower_(2).jpg'),
   },
   pois: [
     {
@@ -141,14 +139,6 @@ export const chistyePrudyRoute: Route = {
           body: 'С 1999 года в пруду живёт колония лебедей. На зиму их перевозят в специальную теплицу и каждый год возвращают весной. Городские службы следят за ними как за музейным экспонатом.',
         },
       ],
-      photo: {
-        url: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Chistye_Prudy_(%D0%A7%D0%B8%D1%81%D1%82%D1%8B%D0%B5_%D0%9F%D1%80%D1%83%D0%B4%D1%8B)_(4322669389).jpg',
-        caption: 'Сам пруд с лодочной станцией',
-        attribution: 'Wikimedia Commons',
-        attributionUrl: COMMONS_PAGE(
-          'Chistye_Prudy_(Чистые_Пруды)_(4322669389).jpg',
-        ),
-      },
     },
     {
       id: 'house-with-animals',
