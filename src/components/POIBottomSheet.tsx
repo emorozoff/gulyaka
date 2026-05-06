@@ -28,7 +28,7 @@ export function POIBottomSheet({ poi, index, total, onClose }: Props) {
         aria-hidden
       />
       <aside
-        className={`fixed inset-x-0 bottom-0 z-[1001] bg-white rounded-t-2xl shadow-2xl max-h-[85vh] flex flex-col transform transition-transform duration-300 ease-out ${
+        className={`fixed inset-x-0 bottom-0 z-[1001] bg-white rounded-t-2xl shadow-2xl max-h-[85vh] pb-safe flex flex-col transform transition-transform duration-300 ease-out ${
           poi ? 'translate-y-0' : 'translate-y-full'
         }`}
         role="dialog"

@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import L, { type Map as LMap } from 'leaflet';
 import type { Route, LatLng } from '../data/types';
 import { useGeolocation } from '../hooks/useGeolocation';
 
@@ -11,6 +11,14 @@ function FitBounds({ coords }: { coords: LatLng[] }) {
     const bounds = L.latLngBounds(coords.map((c) => L.latLng(c[0], c[1])));
     map.fitBounds(bounds, { padding: [48, 48], maxZoom: 17 });
   }, [coords, map]);
+  return null;
+}
+
+function MapRefCapture({ mapRef }: { mapRef: React.RefObject<LMap | null> }) {
+  const map = useMap();
+  useEffect(() => {
+    mapRef.current = map;
+  }, [map, mapRef]);
   return null;
 }
 
@@ -43,48 +51,93 @@ export function MapView({ route, activePoiId, onSelectPoi }: Props) {
     [route],
   );
   const fitCoords = route.pois.map((p) => p.coords);
-  const { position } = useGeolocation();
+  const { position, error: geoError } = useGeolocation();
+  const mapRef = useRef<LMap | null>(null);
+
+  const recenter = () => {
+    if (!position || !mapRef.current) return;
+    mapRef.current.flyTo(
+      [position.coords.latitude, position.coords.longitude],
+      Math.max(mapRef.current.getZoom(), 17),
+      { duration: 0.6 },
+    );
+  };
 
   return (
-    <MapContainer
-      center={center}
-      zoom={16}
-      scrollWheelZoom
-      className="absolute inset-0"
-      zoomControl={false}
-    >
-      <TileLayer
-        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        maxZoom={19}
-      />
-      <Polyline
-        positions={polylinePoints}
-        pathOptions={{
-          color: '#1c1917',
-          weight: 4,
-          opacity: 0.85,
-          dashArray: '6 8',
-          lineCap: 'round',
-        }}
-      />
-      {route.pois.map((poi, i) => (
-        <Marker
-          key={poi.id}
-          position={poi.coords}
-          icon={poiIcon(i + 1, activePoiId === poi.id)}
-          eventHandlers={{ click: () => onSelectPoi(poi.id) }}
+    <>
+      <MapContainer
+        center={center}
+        zoom={16}
+        scrollWheelZoom
+        className="absolute inset-0"
+        zoomControl={false}
+      >
+        <MapRefCapture mapRef={mapRef} />
+        <TileLayer
+          attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
         />
-      ))}
-      {position && (
-        <Marker
-          position={[position.coords.latitude, position.coords.longitude]}
-          icon={userIcon}
-          interactive={false}
-          keyboard={false}
+        <Polyline
+          positions={polylinePoints}
+          pathOptions={{
+            color: '#1c1917',
+            weight: 4,
+            opacity: 0.85,
+            dashArray: '6 8',
+            lineCap: 'round',
+          }}
         />
+        {route.pois.map((poi, i) => (
+          <Marker
+            key={poi.id}
+            position={poi.coords}
+            icon={poiIcon(i + 1, activePoiId === poi.id)}
+            eventHandlers={{ click: () => onSelectPoi(poi.id) }}
+          />
+        ))}
+        {position && (
+          <Marker
+            position={[position.coords.latitude, position.coords.longitude]}
+            icon={userIcon}
+            interactive={false}
+            keyboard={false}
+          />
+        )}
+        <FitBounds coords={fitCoords} />
+      </MapContainer>
+
+      <button
+        type="button"
+        onClick={recenter}
+        disabled={!position}
+        className="absolute right-3 bottom-3 z-[400] w-11 h-11 grid place-items-center bg-white rounded-full shadow-lg border border-stone-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 active:scale-95 transition"
+        aria-label="Найти меня на карте"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" fill="#2563eb" />
+          <circle
+            cx="12"
+            cy="12"
+            r="8"
+            stroke="#1c1917"
+            strokeWidth="2"
+            fill="none"
+          />
+          <path
+            d="M12 2v3M12 19v3M2 12h3M19 12h3"
+            stroke="#1c1917"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+
+      {geoError && !position && (
+        <div className="absolute left-3 right-3 top-3 z-[400] bg-white/95 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-600 shadow">
+          Не удалось получить геолокацию. Карта работает, но без вашей точки.
+        </div>
       )}
-      <FitBounds coords={fitCoords} />
-    </MapContainer>
+    </>
   );
 }
