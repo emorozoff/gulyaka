@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { routes } from '../data/routes';
 
 export function HomeScreen() {
   const route = routes[0];
+  const [coverOk, setCoverOk] = useState(true);
 
   return (
     <div className="min-h-full max-w-xl mx-auto pb-12">
@@ -20,19 +22,18 @@ export function HomeScreen() {
 
       <section className="px-6">
         <article className="rounded-2xl overflow-hidden border border-stone-200 bg-white">
-          {route.cover ? (
+          {route.cover && coverOk ? (
             <figure className="aspect-[4/3] bg-stone-100">
               <img
                 src={route.cover.url}
                 alt={route.cover.caption ?? route.title}
                 className="w-full h-full object-cover"
                 loading="eager"
+                onError={() => setCoverOk(false)}
               />
             </figure>
           ) : (
-            <div className="aspect-[4/3] bg-gradient-to-br from-stone-200 to-stone-100 grid place-items-center text-stone-400 text-sm">
-              Обложка появится с контентом
-            </div>
+            <div className="aspect-[4/3] bg-gradient-to-br from-stone-300 via-stone-200 to-stone-100" />
           )}
           <div className="p-5">
             <h2 className="text-xl font-semibold leading-tight">{route.title}</h2>

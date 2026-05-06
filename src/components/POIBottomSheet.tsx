@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { POI } from '../data/types';
 
 type Props = {
@@ -9,6 +9,12 @@ type Props = {
 };
 
 export function POIBottomSheet({ poi, index, total, onClose }: Props) {
+  const [imageOk, setImageOk] = useState(true);
+
+  useEffect(() => {
+    setImageOk(true);
+  }, [poi?.id]);
+
   useEffect(() => {
     if (!poi) return;
     const onKey = (e: KeyboardEvent) => {
@@ -53,13 +59,14 @@ export function POIBottomSheet({ poi, index, total, onClose }: Props) {
         </header>
         {poi && (
           <div className="overflow-y-auto px-5 py-4 space-y-5">
-            {poi.photo && (
+            {poi.photo && imageOk && (
               <figure className="-mx-5">
                 <img
                   src={poi.photo.url}
                   alt={poi.photo.caption ?? poi.title}
                   className="w-full aspect-[4/3] object-cover bg-stone-100"
                   loading="lazy"
+                  onError={() => setImageOk(false)}
                 />
                 <figcaption className="px-5 pt-2 text-xs text-stone-500 leading-snug">
                   {poi.photo.caption}
